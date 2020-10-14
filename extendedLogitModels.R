@@ -4,7 +4,7 @@
 # Logistic Regression for Predicting Class-Imbalanced Civil War Onset Data
 # ###################################################################### ########
 #Set the Working Directory 
-#setwd("/Users/tara/Documents/Princeton/Academics/Fall 2020/COS 597E/Assignment 2/Muchlinski Replication Materials/dataverse_files") 
+setwd("/Users/tara/Documents/Princeton/Academics/Fall 2020/COS 597E/Assignment 2/Muchlinski Replication Materials/dataverse_files") 
 getwd()
 # data for prediction 
 data=read.csv(file="SambanisImp.csv")
@@ -83,10 +83,10 @@ summary(model.full_logit.1)
 model.full_logit.1
 
 ### Combined Model: Combine Fearon/Latin and Collier and Hoeffler 
-model.combined_fl_hs.1<- train(as.factor(warstds)~warhist+ln_gdpen+lpopns+lmtnest+ncontig+oil+nwstate+inst3+pol4+ef+relfrac+sxpnew+sxpsq+gdpgrowth+warhist+popdense+coldwar+seceduc+ptime, 
+model.combined_fl_ch.1<- train(as.factor(warstds)~warhist+ln_gdpen+lpopns+lmtnest+ncontig+oil+nwstate+inst3+pol4+ef+relfrac+sxpnew+sxpsq+gdpgrowth+warhist+popdense+coldwar+seceduc+ptime, 
                    metric="ROC", method="glm", family="binomial", trControl=tc, data=data.full)
-summary(model.combined_fl_hs.1) 
-model.combined_fl_hs.1
+summary(model.combined_fl_ch.1) 
+model.combined_fl_ch.1
 
 ### Insurgency Model: Use features that might back up Fearon/Laitin's hypothesis that civil war occurs when conditions are beneficial to insurgents
 model.insurgency.1<- train(as.factor(warstds)~warhist+ln_gdpen+illiteracy+sxpsq+seceduc+milper+mirps2+inst3+pol4+warhist+ncontig+lmtnest, 
@@ -118,7 +118,7 @@ RF.1.pred<-predict(model.rf$finalModel, type="prob")
 RF.1.pred<-as.data.frame(RF.1.pred)
 
 pred.FULL_LOGIT.war<-model.full_logit.1$finalModel$fitted.values
-pred.COMBINED_FL_HS.war<-model.combined_fl_hs.1$finalModel$fitted.values
+pred.COMBINED_fl_ch.war<-model.combined_fl_ch.1$finalModel$fitted.values
 pred.INSURGENCY.war<-model.insurgency.1$finalModel$fitted.values
 pred.STAT_SIG.war<-model.stat_sig.1$finalModel$fitted.values
 
@@ -135,27 +135,28 @@ perf.RF.1<-performance(pred.RF.1, "tpr", "fpr")
 
 pred.FULL_LOGIT<-prediction(pred.FULL_LOGIT.war, data.full$warstds) 
 perf.FULL_LOGIT<-performance(pred.FULL_LOGIT, "tpr", "fpr")
-pred.COMBINED_FL_HS<-prediction(pred.COMBINED_FL_HS.war, data.full$warstds) 
-perf.COMBINED_FL_HS<-performance(pred.COMBINED_FL_HS, "tpr", "fpr")
+pred.COMBINED_fl_ch<-prediction(pred.COMBINED_fl_ch.war, data.full$warstds) 
+perf.COMBINED_fl_ch<-performance(pred.COMBINED_fl_ch, "tpr", "fpr")
 pred.INSURGENCY<-prediction(pred.INSURGENCY.war, data.full$warstds) 
 perf.INSURGENCY<-performance(pred.INSURGENCY, "tpr", "fpr")
 pred.STAT_SIG<-prediction(pred.STAT_SIG.war, data.full$warstds) 
 perf.STAT_SIG<-performance(pred.STAT_SIG, "tpr", "fpr")
 
 ### Code for plotting the corrected ROC Curves in Figure 1.
+pdf("Fig2_ExtendedLogit.pdf", 7, 7)
 plot(perf.FL, main="Uncorrected Logits and Random Forests (Corrected)", col='black')
 plot(perf.CH, add=T, lty=2, col='red')
 plot(perf.HS, add=T, lty=3, col='blue')
 plot(perf.RF.1, add=T, lty=4, col='green')
 
 plot(perf.FULL_LOGIT, add=T, lty=5, col='orange')
-plot(perf.COMBINED_FL_HS, add=T, lty=6, col='purple')
+plot(perf.COMBINED_fl_ch, add=T, lty=6, col='purple')
 plot(perf.INSURGENCY, add=T, lty=7, col='pink')
 plot(perf.STAT_SIG, add=T, lty=8, col='brown')
 
-legend(0.5,0.5, legend=c("Fearon and Laitin (2003) 0.77", "Collier and Hoeffler (2004) 0.82", "Hegre and Sambanis (2006) 0.80", "Random Forest 0.91", "Logistic Regression on all 88 Variables 0.83", "Combined FL + HS 0.847", "Insurgency 0.80", "Statistically Significant 0.85"), 
+legend(0.5,0.5, legend=c("Fearon and Laitin (2003) 0.77", "Collier and Hoeffler (2004) 0.82", "Hegre and Sambanis (2006) 0.80", "Random Forest 0.91", "Full Logit 0.83", "Combined FL + CH 0.847", "Insurgency 0.80", "Statistically Significant 0.85"), 
        lty=c(1,2,3,4,5,6,7,8), col=c("black", "red", "blue", "green", "orange", "purple", "pink", "brown"), bty="n", cex = .75)
-
+dev.off()
 ### Corrected code to draw corrected Separation Plots in Figure 2 as per Wang.
 ###Separation Plots### 
 library(separationplot)
@@ -175,8 +176,8 @@ separationplot(RF.1.pred$war, Warstds, type = "line", line = T, lwd2=1, show.exp
 separationplot(pred.FL.war, Warstds, type = "line", line = T, lwd2=1, show.expected=T, heading="Fearon and Laitin (2003)", height=2.5, col0="white", col1="black")
 separationplot(pred.CH.war, Warstds, type = "line", line = T, lwd2=1, show.expected=T, heading="Collier and Hoeffler (2004)", height=2.5, col0="white", col1="black")
 separationplot(pred.HR.war, Warstds, type = "line", line = T, lwd2=1, show.expected=T, heading="Hegre and Sambanis (2006)", height=2.5, col0="white", col1="black")
-separationplot(pred.FULL_LOGIT.war, Warstds, type="line", line = T, lwd2=1, show.expected=T, heading="Logistic Regression on all 88 Variables", height=2.5, col0="white", col1="black")
-separationplot(pred.COMBINED_FL_HS.war, Warstds, type="line", line = T, lwd2=1, show.expected=T, heading="Combined FL+HS", height=2.5, col0="white", col1="black")
+separationplot(pred.FULL_LOGIT.war, Warstds, type="line", line = T, lwd2=1, show.expected=T, heading="Full Logistic Regression", height=2.5, col0="white", col1="black")
+separationplot(pred.COMBINED_fl_ch.war, Warstds, type="line", line = T, lwd2=1, show.expected=T, heading="Combined FL+CH", height=2.5, col0="white", col1="black")
 separationplot(pred.INSURGENCY.war, Warstds, type="line", line = T, lwd2=1, show.expected=T, heading="Insurgency", height=2.5, col0="white", col1="black")
 separationplot(pred.STAT_SIG.war, Warstds, type="line", line = T, lwd2=1, show.expected=T, heading="Statistically Significant", height=2.5, col0="white", col1="black")
 
@@ -228,10 +229,10 @@ full_logit.pred<-as.data.frame(full_logit.pred)
 pred.FULL_LOGIT.1<-prediction(full_logit.pred$war, mena$`as.factor(data_imp$warstds)`) 
 perf.FULL_LOGIT.1<-performance(pred.FULL_LOGIT.1, "auc")
 
-combined_fl_hs.pred<-predict(model.combined_fl_hs.1, newdata=mena, type="prob") 
-combined_fl_hs.pred<-as.data.frame(combined_fl_hs.pred)
-pred.COMBINED_FL_HS.1<-prediction(combined_fl_hs.pred$war, mena$`as.factor(data_imp$warstds)`) 
-perf.COMBINED_FL_HS.1<-performance(pred.COMBINED_FL_HS.1, "auc")
+combined_fl_ch.pred<-predict(model.combined_fl_ch.1, newdata=mena, type="prob") 
+combined_fl_ch.pred<-as.data.frame(combined_fl_ch.pred)
+pred.COMBINED_fl_ch.1<-prediction(combined_fl_ch.pred$war, mena$`as.factor(data_imp$warstds)`) 
+perf.COMBINED_fl_ch.1<-performance(pred.COMBINED_fl_ch.1, "auc")
 
 insurgency.pred<-predict(model.insurgency.1, newdata=mena, type="prob") 
 insurgency.pred<-as.data.frame(insurgency.pred)
@@ -244,10 +245,10 @@ pred.STAT-SIG.1<-prediction(STAT-SIG.pred$war, mena$`as.factor(data_imp$warstds)
 perf.STAT-SIG.1<-performance(pred.STAT-SIG.1, "auc")
 
 ### Save Imputed Data. ###
-predictions<-cbind(mena$cowcode, mena$year, mena$warstds, fl.pred[,2], ch.pred[,2], hs.pred[,2], rf.pred[,2], full_logit.pred[,2], combined_fl_hs.pred[,2], insurgency.pred[,2], stat_sig.pred[,2])
+predictions<-cbind(mena$cowcode, mena$year, mena$warstds, fl.pred[,2], ch.pred[,2], hs.pred[,2], rf.pred[,2], full_logit.pred[,2], combined_fl_ch.pred[,2], insurgency.pred[,2], stat_sig.pred[,2])
 ### Write column headings for the out of sample data. ### 
 colnames(predictions)<-c("COWcode", "year", "CW_Onset", "Fearon and Latin (2003)", "Collier and Hoeffler (2004)", "Hegre and Sambanis (2006)",
-                         "Random Forest", "Full Logistic Regression", "Combined FL + HS", "Insurgency", "Statistically Significant")
+                         "Random Forest", "Full Logistic Regression", "Combined FL + CH", "Insurgency", "Statistically Significant")
 ### Save predictions as data frame for ordering the columns. 
 predictions<-as.data.frame(predictions)
 ### Table 1 Results, ordered by Onset (decreasing), and year (increasing) in R rather than excel.
