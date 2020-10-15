@@ -1,8 +1,12 @@
-setwd("/Users/dupe/projects/princeton/LTPMuchlinski_extension/replication")
+###
+# Extension of Muchlinski et al with additional random forest models, trained with
+# smaller sets of variables
+##
+
 getwd()
 
 # data for prediction
-data=read.csv(file="SambanisImp.csv")
+data=read.csv(file="../dataverse_files/SambanisImp.csv")
 
 library(randomForest) #for random forests
 library(caret) # for CV folds and data splitting
@@ -82,7 +86,7 @@ model.rf_topvars_accuracy
 ##Random Forests on Amelia Imputed Data for Variable Importance Plot###
 ##Data Imputed only for Theoretically Important Variables### Done to analyze variable
 # importance
-data2<-read.csv(file="Amelia.Imp3.csv") ###
+data2<-read.csv(file="../dataverse_files/Amelia.Imp3.csv") ###
 myvars <- names(data2) %in% c("X", "country", "year", "atwards")
 newdata <- data2[!myvars]
 RF.out.am<-randomForest(as.factor(warstds)~.,sampsize=c(30, 90),
@@ -172,7 +176,7 @@ separationplot(rf_topvars_accuracy.pred$war, Warstds, type = "line", line = T, l
 set.seed(425)
 
 ### Dataset for imputation.
-data_imp<-read.csv(file="data_full.csv")
+data_imp<-read.csv(file="../dataverse_files/data_full.csv")
 
 # Imputation procedure.
 # This is the imputation procedure we originally used to impute this data.
@@ -237,4 +241,4 @@ xtable(Onset_table_1thru19)
 ### Write the .csv file for all predictions to check against the Latex code for Table 1.
 ### Sort the csv same way as the Latex table - CW_Onset (decreasing), then by year
 # (increasing).
-write.csv(predictions, file="out_of_sample_random_forest_predictions_extension.csv")
+write.csv(predictions, file="../dataverse_files/out_of_sample_random_forest_predictions_extension.csv")
