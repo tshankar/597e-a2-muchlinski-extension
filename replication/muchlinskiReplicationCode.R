@@ -6,9 +6,9 @@
 getwd()
 
 # data for prediction 
-data=read.csv(file="SambanisImp.csv")
+data=read.csv(file="../dataverse_files/SambanisImp.csv")
 # data for looking at Variable Importance Plots 
-data2<-read.csv(file="Amelia.Imp3.csv")
+data2<-read.csv(file="../dataverse_files/Amelia.Imp3.csv")
 
 library(randomForest) #for random forests 
 library(caret) # for CV folds and data splitting 
@@ -248,7 +248,7 @@ main="",ylab=expression(paste(Delta, "Fraction of Votes p(Y=1)")))
 set.seed(425)
 
 ### Dataset for imputation. 
-data_imp<-read.csv(file="data_full_fromonline.csv")
+data_imp<-read.csv(file="../dataverse_files/data_full_fromonline.csv")
 
 # Imputation procedure.
 # This is the imputation procedure we originally used to impute this data.
@@ -289,7 +289,9 @@ predictions<-as.data.frame(predictions)
 ### Table 1 Results, ordered by Onset (decreasing), and year (increasing) in R rather than excel.
 Onset_table<-predictions[order(-predictions$CW_Onset, predictions$year),]
 
-### Rows 1-19 of the above go in Table 1. ### Onset_table_1thru19<-head(Onset_table, n=19)
-### Here's the code for Table 1 in Latex. ### xtable(Onset_table_1thru19)
+### Rows 1-19 of the above go in Table 1. ### 
+Onset_table_1thru19<-head(Onset_table, n=19)
+### Here's the code for Table 1 in Latex. ### 
+xtable(Onset_table_1thru19)
 ### Write the .csv file for all predictions to check against the Latex code for Table 1. ### Sort the csv same way as the Latex table - CW_Onset (decreasing), then by year (increasing).
 write.csv(predictions, file="testing_file_CW_onset_RF_rep_final.csv")
